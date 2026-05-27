@@ -10,6 +10,7 @@ import { convert, unitLabel } from './utils/units'
 const STORAGE_KEY = 'crimpmark_results'
 const PREFS_KEY = 'crimpmark_prefs'
 const MAX_READINGS = 600  // 30s @ ~20Hz headroom
+const NOISE_FLOOR_KG = 0.1  // readings below this are treated as 0
 
 function loadResults() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? [] } catch { return [] }
@@ -36,7 +37,8 @@ export default function App() {
     localStorage.setItem(PREFS_KEY, JSON.stringify({ unit, hand, skip: skipFirst5 }))
   }, [unit, hand, skipFirst5])
 
-  const handleReading = useCallback((kg) => {
+  const handleReading = useCallback((raw) => {
+    const kg = raw < NOISE_FLOOR_KG ? 0 : raw
     const t = Date.now()
     setReadings(prev => {
       const next = prev.length >= MAX_READINGS ? prev.slice(-MAX_READINGS + 1) : prev.slice()
@@ -45,6 +47,16 @@ export default function App() {
     })
     setSessionMax(prev => (prev == null || kg > prev) ? kg : prev)
     if (capturing) captureBufferRef.current.push({ t, kg })
+  }, [capturing])
+
+  const handleTare = useCallback(() => {
+    sendCommand('t')
+    setReadings([])
+    setSessionMax(null)
+    if (capturing) {
+      captureBufferRef.current = []
+      captureStartRef.current = Date.now()
+    }
   }, [capturing])
 
   const { connected, error, connect, disconnect, sendCommand } = useBluetooth(handleReading)
@@ -159,7 +171,7 @@ export default function App() {
         onSkipChange={setSkip}
         onStart={startCapture}
         onStop={stopCapture}
-        onTare={() => sendCommand('t')}
+        onTare={handleTare}
       />
 
       <div className="rule" />
