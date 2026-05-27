@@ -7,12 +7,6 @@ export default function ConnectButton({ connected, error, onConnect, onDisconnec
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      {connected && (
-        <span style={{ color: 'var(--green)', fontSize: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--green)' }} />
-          Connected
-        </span>
-      )}
       <button
         onClick={connected ? onDisconnect : onConnect}
         className={connected ? 'danger' : 'primary'}
