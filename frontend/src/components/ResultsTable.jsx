@@ -1,50 +1,59 @@
 import { convert, unitLabel } from '../utils/units'
 
+function timeAgo(iso) {
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000
+  if (diff < 60)     return `${Math.floor(diff)}s ago`
+  if (diff < 3600)   return `${Math.floor(diff/60)}m ago`
+  if (diff < 86400)  return `${Math.floor(diff/3600)}h ago`
+  return `${Math.floor(diff/86400)}d ago`
+}
+
 export default function ResultsTable({ results, onDelete, unit }) {
   const ul = unitLabel(unit)
 
   if (results.length === 0) {
     return (
-      <p style={{ color: '#555e80', fontSize: 13, textAlign: 'center', padding: '24px 0' }}>
-        No saved results yet. Select a hold and capture a pull.
+      <p style={{ color: 'var(--muted)', fontSize: 13, padding: '8px 0' }}>
+        No sessions yet. Select a hold and capture a pull.
       </p>
     )
   }
 
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-        <thead>
-          <tr style={{ borderBottom: '1px solid #2e3250', color: '#888' }}>
-            <th style={th}>Hold</th>
-            <th style={th}>Max ({ul})</th>
-            <th style={th}>Avg ({ul})</th>
-            <th style={th}>Date</th>
-            <th style={th}></th>
+    <table>
+      <thead>
+        <tr>
+          <th style={{ width: '15%' }}>Hold</th>
+          <th style={{ width: '10%' }}>Hand</th>
+          <th style={{ width: '20%' }}>Max</th>
+          <th style={{ width: '20%' }}>Avg</th>
+          <th style={{ width: '25%' }}>When</th>
+          <th style={{ width: '10%' }}></th>
+        </tr>
+      </thead>
+      <tbody>
+        {[...results].reverse().map(r => (
+          <tr key={r.id}>
+            <td style={{ fontWeight: 600 }}>{r.label}</td>
+            <td style={{ color: 'var(--muted)' }}>{r.hand || '—'}</td>
+            <td className="num" style={{ color: 'var(--red)', fontWeight: 600 }}>
+              {convert(r.maxKg, unit).toFixed(1)} <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 11 }}>{ul}</span>
+            </td>
+            <td className="num" style={{ color: 'var(--text)' }}>
+              {convert(r.avgKg, unit).toFixed(1)} <span style={{ color: 'var(--muted)', fontSize: 11 }}>{ul}</span>
+            </td>
+            <td style={{ color: 'var(--muted)' }}>{timeAgo(r.timestamp)}</td>
+            <td style={{ textAlign: 'right' }}>
+              <button
+                onClick={() => onDelete(r.id)}
+                style={{ padding: '4px 8px', fontSize: 12, color: 'var(--muted)', border: 'none' }}
+              >
+                ✕
+              </button>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {[...results].reverse().map(r => (
-            <tr key={r.id} style={{ borderBottom: '1px solid #1e2130' }}>
-              <td style={td}><strong>{r.label}</strong></td>
-              <td style={{ ...td, color: '#ef5350' }}>{convert(r.maxKg, unit).toFixed(2)}</td>
-              <td style={{ ...td, color: '#5c6bc0' }}>{convert(r.avgKg, unit).toFixed(2)}</td>
-              <td style={{ ...td, color: '#888' }}>{new Date(r.timestamp).toLocaleString()}</td>
-              <td style={td}>
-                <button
-                  onClick={() => onDelete(r.id)}
-                  style={{ background: 'transparent', color: '#555e80', padding: '4px 8px', fontSize: 12 }}
-                >
-                  ✕
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
   )
 }
-
-const th = { textAlign: 'left', padding: '8px 12px', fontWeight: 500 }
-const td = { padding: '10px 12px' }

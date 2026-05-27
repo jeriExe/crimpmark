@@ -61,16 +61,14 @@ void loop() {
   }
 
   if (scale.is_ready()) {
-    float reading = scale.get_units(10);
+    float reading = scale.get_units(1);
 
     Serial.print("Pull: ");
-    Serial.print(reading, 3);
+    Serial.print(reading, 2);
     Serial.println(" kg");
 
     if (BLE.connected()) {
-      forceChar.writeValue(String(reading, 3));
+      forceChar.writeValue(String(reading, 2));
     }
   }
-
-  delay(200);
 }

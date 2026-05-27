@@ -3,7 +3,7 @@ import { useState } from 'react'
 const PRESETS = ['20mm', '18mm', '15mm', '12mm', '10mm', '8mm']
 
 export default function HoldSelector({ value, onChange }) {
-  const [custom, setCustom] = useState(false)
+  const [custom, setCustom] = useState(!PRESETS.includes(value) && value !== '')
 
   function handleSelect(e) {
     if (e.target.value === '__custom__') {
@@ -17,30 +17,25 @@ export default function HoldSelector({ value, onChange }) {
 
   if (custom) {
     return (
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div style={{ display: 'flex', gap: 6 }}>
         <input
           type="text"
-          placeholder="e.g. pinch, sloper..."
+          placeholder="custom hold"
           value={value}
           onChange={e => onChange(e.target.value)}
           autoFocus
-          style={{ width: 180 }}
+          style={{ width: 140 }}
         />
-        <button
-          onClick={() => { setCustom(false); onChange(PRESETS[0]) }}
-          style={{ background: '#2e3250', padding: '8px 10px' }}
-        >
-          ✕
+        <button onClick={() => { setCustom(false); onChange(PRESETS[0]) }}>
+          ↺
         </button>
       </div>
     )
   }
 
   return (
-    <select value={value || PRESETS[0]} onChange={handleSelect} style={{ width: 140 }}>
-      {PRESETS.map(p => (
-        <option key={p} value={p}>{p}</option>
-      ))}
+    <select value={value || PRESETS[0]} onChange={handleSelect} style={{ minWidth: 110 }}>
+      {PRESETS.map(p => <option key={p} value={p}>{p}</option>)}
       <option value="__custom__">Custom…</option>
     </select>
   )

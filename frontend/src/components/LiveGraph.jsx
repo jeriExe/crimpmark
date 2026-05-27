@@ -1,70 +1,69 @@
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
-  Tooltip, ReferenceLine, ResponsiveContainer, Legend,
+  ReferenceLine, ResponsiveContainer,
 } from 'recharts'
 import { convert, unitLabel } from '../utils/units'
 
 const WINDOW_S = 30
 
-export default function LiveGraph({ readings, sessionMax, unit }) {
+function LiveGraph({ readings, sessionMax, unit }) {
   const now = Date.now()
   const windowStart = now - WINDOW_S * 1000
-  const visible = readings.filter(r => r.t >= windowStart)
-
-  const data = visible.map(r => ({
-    t: ((r.t - windowStart) / 1000).toFixed(1),
-    value: +convert(r.kg, unit).toFixed(2),
-  }))
+  const data = []
+  for (const r of readings) {
+    if (r.t < windowStart) continue
+    data.push({ t: +((r.t - windowStart) / 1000).toFixed(2), value: +convert(r.kg, unit).toFixed(2) })
+  }
 
   const maxDisplay = sessionMax != null ? +convert(sessionMax, unit).toFixed(2) : null
   const ul = unitLabel(unit)
 
   return (
-    <div style={{ width: '100%', height: 240 }}>
+    <div style={{ width: '100%', height: 220 }}>
       <ResponsiveContainer>
-        <LineChart data={data} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#2e3250" />
+        <LineChart data={data} margin={{ top: 12, right: 8, left: 0, bottom: 0 }}>
+          <CartesianGrid stroke="var(--rule)" vertical={false} />
           <XAxis
             dataKey="t"
             type="number"
             domain={[0, WINDOW_S]}
-            tickCount={7}
+            ticks={[0, 5, 10, 15, 20, 25, 30]}
             tickFormatter={v => `${v}s`}
-            stroke="#555e80"
-            tick={{ fontSize: 11, fill: '#888' }}
+            stroke="var(--dim)"
+            tick={{ fontSize: 10, fill: 'var(--muted)' }}
+            tickLine={false}
+            axisLine={{ stroke: 'var(--rule)' }}
           />
           <YAxis
             domain={[0, 'auto']}
-            tickFormatter={v => `${v}`}
-            stroke="#555e80"
-            tick={{ fontSize: 11, fill: '#888' }}
+            stroke="var(--dim)"
+            tick={{ fontSize: 10, fill: 'var(--muted)' }}
+            tickLine={false}
+            axisLine={false}
             unit={` ${ul}`}
-            width={60}
-          />
-          <Tooltip
-            contentStyle={{ background: '#1e2130', border: '1px solid #2e3250', borderRadius: 6 }}
-            labelFormatter={v => `${v}s`}
-            formatter={v => [`${v} ${ul}`, 'Force']}
+            width={56}
           />
           {maxDisplay != null && (
             <ReferenceLine
               y={maxDisplay}
-              stroke="#ef5350"
-              strokeDasharray="4 2"
-              label={{ value: `Max ${maxDisplay} ${ul}`, fill: '#ef5350', fontSize: 11, position: 'insideTopRight' }}
+              stroke="var(--red)"
+              strokeDasharray="3 3"
+              strokeOpacity={0.7}
+              label={{ value: `max ${maxDisplay}`, fill: 'var(--red)', fontSize: 10, position: 'insideTopRight' }}
             />
           )}
           <Line
             type="monotone"
             dataKey="value"
-            stroke="#5c6bc0"
-            strokeWidth={2}
+            stroke="var(--amber)"
+            strokeWidth={1.75}
             dot={false}
             isAnimationActive={false}
-            name="Force"
           />
         </LineChart>
       </ResponsiveContainer>
     </div>
   )
 }
+
+export default LiveGraph

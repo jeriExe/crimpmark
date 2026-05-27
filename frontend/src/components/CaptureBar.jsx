@@ -1,58 +1,64 @@
-import { convert, unitLabel } from '../utils/units'
 import HoldSelector from './HoldSelector'
+import HandToggle from './HandToggle'
 
 export default function CaptureBar({
-  capturing, connected, holdLabel, onHoldChange,
-  captureMax, captureAvg, onStart, onStop, onTare, unit,
+  capturing, connected,
+  holdLabel, onHoldChange,
+  hand, onHandChange,
+  skipFirst5, onSkipChange,
+  onStart, onStop, onTare,
 }) {
-  const ul = unitLabel(unit)
-
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 12,
-      background: '#1e2130', borderRadius: 8, padding: '12px 16px',
-      flexWrap: 'wrap',
+      display: 'flex', alignItems: 'center', gap: 24,
+      flexWrap: 'wrap', justifyContent: 'space-between',
     }}>
-      <HoldSelector value={holdLabel} onChange={onHoldChange} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+        <Field label="Edge">
+          <HoldSelector value={holdLabel} onChange={onHoldChange} />
+        </Field>
+        <Field label="Hand">
+          <HandToggle hand={hand} onChange={onHandChange} />
+        </Field>
+        <label style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          fontSize: 13, color: 'var(--muted)', cursor: 'pointer', userSelect: 'none',
+        }}>
+          <input
+            type="checkbox"
+            checked={skipFirst5}
+            onChange={e => onSkipChange(e.target.checked)}
+            style={{ accentColor: 'var(--amber)', width: 14, height: 14, cursor: 'pointer' }}
+          />
+          skip first 5s
+        </label>
+      </div>
 
-      {!capturing ? (
-        <button
-          onClick={onStart}
-          disabled={!connected || !holdLabel}
-          style={{ background: '#1565c0' }}
-        >
-          Start Capture
-        </button>
-      ) : (
-        <button onClick={onStop} style={{ background: '#c62828' }}>
-          Stop &amp; Save
-        </button>
-      )}
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button onClick={onTare} disabled={!connected}>Tare</button>
+        {!capturing ? (
+          <button
+            onClick={onStart}
+            disabled={!connected || !holdLabel}
+            className="primary"
+          >
+            Start capture
+          </button>
+        ) : (
+          <button onClick={onStop} className="danger">
+            Stop &amp; save
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
 
-      <button
-        onClick={onTare}
-        disabled={!connected}
-        style={{ background: '#37474f' }}
-      >
-        Tare
-      </button>
-
-      {capturing && (
-        <div style={{ display: 'flex', gap: 24, fontSize: 13 }}>
-          <span>
-            <span style={{ color: '#888' }}>Max </span>
-            <strong style={{ color: '#ef5350' }}>
-              {captureMax != null ? `${convert(captureMax, unit).toFixed(2)} ${ul}` : '—'}
-            </strong>
-          </span>
-          <span>
-            <span style={{ color: '#888' }}>Avg </span>
-            <strong style={{ color: '#5c6bc0' }}>
-              {captureAvg != null ? `${convert(captureAvg, unit).toFixed(2)} ${ul}` : '—'}
-            </strong>
-          </span>
-        </div>
-      )}
+function Field({ label, children }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <span className="label">{label}</span>
+      {children}
     </div>
   )
 }
