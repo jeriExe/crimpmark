@@ -95,10 +95,7 @@ export default function App() {
     <div style={{ maxWidth: 920, margin: '0 auto', padding: '32px 28px 80px' }}>
       {/* Header */}
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-          <h1 style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>crimpmark</h1>
-          <span style={{ color: 'var(--muted)', fontSize: 11, letterSpacing: '0.04em' }}>load cell</span>
-        </div>
+        <h1 style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>crimpmark</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <ConnectButton
             connected={connected}
@@ -115,7 +112,6 @@ export default function App() {
       {/* Hero readout */}
       <section style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
         <div>
-          <div className="label" style={{ marginBottom: 4 }}>Now</div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
             <span
               className="num"
@@ -136,7 +132,7 @@ export default function App() {
         <div style={{ display: 'flex', gap: 32, paddingBottom: 6 }}>
           <Stat label="Session max" value={sessionMax} unit={unit} color="var(--red)" />
           <Stat
-            label="Average (live)"
+            label="Average"
             value={capturing && captureBufferRef.current.length
               ? captureBufferRef.current.reduce((a, b) => a + b.kg, 0) / captureBufferRef.current.length
               : null}

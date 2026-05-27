@@ -40,6 +40,8 @@ export function useBluetooth(onReading) {
 
       setConnected(true)
     } catch (e) {
+      // User dismissed the device picker — not an error worth surfacing
+      if (e.name === 'NotFoundError' || /cancelled/i.test(e.message)) return
       setError(e.message)
     }
   }, [])

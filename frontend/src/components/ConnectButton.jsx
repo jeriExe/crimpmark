@@ -17,7 +17,7 @@ export default function ConnectButton({ connected, error, onConnect, onDisconnec
         onClick={connected ? onDisconnect : onConnect}
         className={connected ? 'danger' : 'primary'}
       >
-        {connected ? 'Disconnect' : 'Connect scale'}
+        {connected ? 'Disconnect' : 'Connect'}
       </button>
       {error && <span style={{ color: 'var(--red)', fontSize: 12 }}>{error}</span>}
     </div>
