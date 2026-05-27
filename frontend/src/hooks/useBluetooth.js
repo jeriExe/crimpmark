@@ -16,7 +16,14 @@ export function useBluetooth(onReading) {
     setError(null)
     try {
       const device = await navigator.bluetooth.requestDevice({
-        filters: [{ name: 'Crimpmark' }],
+        // Match either by advertised service UUID or by name.
+        // Service-based match is more reliable since names sometimes
+        // get mangled at the advertising layer.
+        filters: [
+          { services: [SERVICE_UUID] },
+          { name: 'Crimpmark' },
+          { namePrefix: 'Crimp' },
+        ],
         optionalServices: [SERVICE_UUID],
       })
       deviceRef.current = device
